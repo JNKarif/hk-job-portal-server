@@ -1,5 +1,5 @@
 const express = require('express');
-const cors= require('cors');
+const cors = require('cors');
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config()
@@ -15,32 +15,48 @@ app.use(express.json())
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.ei4prfy.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
+// console.log(uri)
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-async function run(){
+async function run() {
 
-try{
-const jobSectorsCollection = client.db('hk-job-portal').collection('sectors')
+    try {
+        const jobSectorsCollection = client.db('hk-job-portal').collection('sectors');
+        const jobCandidatesDataCollection = client.db('hk-job-portal').collection('candidatesData');
 
-app.get('/jobSectors', async(req, res)=>{
-    const query ={};
-    const sectors = await jobSectorsCollection.find(query).toArray();
-    res.send(sectors);
-})
+        app.get('/jobSectors', async (req, res) => {
+            const query = {};
+            const sectors = await jobSectorsCollection.find(query).toArray();
+            res.send(sectors);
+        })
 
-}
-finally{
+        app.post('/candidatesData', async (req, res) => {
+            const candidatesData = req.body;
+            console.log(candidatesData);
+            const result = await jobCandidatesDataCollection.insertOne(candidatesData);
+            res.send(result)
+        })
 
-}
+        app.get('/candidatesData', async (req, res) => {
+            const email = req.query.email;
+            console.log(email)
+            const query = { email: email };
+            const data = await jobCandidatesDataCollection.find(query).toArray();
+            res.send(data)
+        })
+
+    }
+    finally {
+
+    }
 
 }
 
 run().catch(console.log)
 
 
-app.get('/', async(req, res)=>{
+app.get('/', async (req, res) => {
     res.send('HK Job Portal Server is running')
 })
 
-app.listen(port, ()=> console.log(`HK Job Portal is running on ${port}`))
+app.listen(port, () => console.log(`HK Job Portal is running on ${port}`))
