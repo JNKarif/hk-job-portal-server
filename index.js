@@ -23,6 +23,7 @@ async function run() {
     try {
         const jobSectorsCollection = client.db('hk-job-portal').collection('sectors');
         const jobCandidatesDataCollection = client.db('hk-job-portal').collection('candidatesData');
+        const jobsCollection= client.db('hk-job-portal').collection('jobs')
 
         app.get('/jobSectors', async (req, res) => {
             const query = {};
@@ -43,6 +44,12 @@ async function run() {
             const query = { email: email };
             const data = await jobCandidatesDataCollection.find(query).toArray();
             res.send(data)
+        })
+
+        app.get('/jobs', async(req, res)=>{
+            const query = {};
+            const jobs= await jobsCollection.find(query).toArray();
+            res.send(jobs)
         })
 
     }
